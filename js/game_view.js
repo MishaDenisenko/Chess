@@ -35,6 +35,16 @@ for (let i = 0; i < gameField.length; i++) {
     }
 }
 
+// let dangerCells = desk.setCellsDanger(whitePieces, blackPieces)
+// for (let cell of dangerCells) {
+//
+//     let normalizePositionB = desk.getNormalizePosition(cell)
+//     let cellD = gameField[normalizePositionB[0]][normalizePositionB[1]]
+//     cellD.insertAdjacentHTML('beforeend',
+//         `<img src="../img/chess/move/blue-dot.png" alt="" class="pos-icon">`
+//     )
+// }
+
 function clickOnCell(position){
     if (this.children.length) {
         if (this.children[0].classList.contains('pos-icon')) {
@@ -74,7 +84,7 @@ function clickOnCell(position){
 const showMoves = (positions) => {
     removeOldMoves()
 
-    console.log(positions)
+    // console.log(positions)
     for (let i = 0; i < positions.length; i++) {
         let cellPos = desk.getNormalizePosition(positions[i].position)
         let cell = gameField[cellPos[0]][cellPos[1]]

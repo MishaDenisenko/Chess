@@ -2,6 +2,56 @@ class Desk {
 
     _horizontal = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     _vertical = ['1', '2', '3', '4', '5', '6', '7', '8']
+    _cells = []
+    _dangerCells = []
+
+    constructor() {
+        for (let vertical of this._vertical) {
+            for (let horizontal of this._horizontal) {
+                this._cells.push(new Cell(horizontal + vertical, false))
+            }
+        }
+    }
+
+    setCellsDanger = (selfPieces, otherPieces) => {
+        this._dangerCells = []
+        for (let cell of this._cells) {
+            cell.danger = false
+        }
+
+        for (let piece of otherPieces) {
+            if (piece.isAlive) {
+                let potentialMoves = piece.getMenacingMoves(selfPieces, otherPieces)
+                for (let move of potentialMoves) {
+                    if (!move.threatens) continue
+                    for (let cell of this._cells) {
+                        if (cell.coords === move.position) {
+                            if (cell.danger) continue
+
+                            cell.danger = true
+                            this._dangerCells.push(cell.coords)
+                            break
+                        }
+                    }
+                }
+                // if (!menacingMoves) continue
+                // for (let move of menacingMoves) {
+                //     for (let cell of this._cells) {
+                //         if (cell.coords === move.position) {
+                //             if (cell.danger) continue
+                //
+                //             cell.danger = true
+                //             this._dangerCells.push(cell.coords)
+                //             break
+                //         }
+                //     }
+                // }
+            }
+        }
+        // console.log(this._dangerCells)
+
+        return this._dangerCells
+    }
 
     getNormalizePosition = (position) => {
         return [this._vertical.indexOf(position[1]), this._horizontal.indexOf(position[0])]
@@ -100,7 +150,6 @@ class Desk {
     }
 
     getRightTopDiagonal = (position, color, once = false) => {
-        console.log(position + ' pos')
         let currentPosH = this._horizontal.indexOf(position[0])
         let currentPosV = this._vertical.indexOf(position[1])
         let rightTopDiagonal = []
@@ -108,7 +157,6 @@ class Desk {
         switch (color) {
             case 'white':
                 for (let i = currentPosV + 1; i < this._vertical.length; i++) {
-                    console.log(this._horizontal[currentPosH+1] + this._vertical[i])
                     if (!this._vertical[i] || !this._horizontal[currentPosH+1]) break
                     rightTopDiagonal.push(this._horizontal[++currentPosH] + this._vertical[i])
                 }
@@ -223,7 +271,21 @@ class Desk {
         return knightMove
     }
 
+    get dangerCells() {
+        return this._dangerCells;
+    }
 
+}
+
+class Cell {
+    coords
+    danger
+
+
+    constructor(coords, danger) {
+        this.coords = coords;
+        this.danger = danger;
+    }
 }
 
 export default Desk

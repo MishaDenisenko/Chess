@@ -29,10 +29,10 @@ ul, li{
 }
 
 .pos-icon{
+    position: absolute;
     max-height: 20px;
 }
 .pos-icon.other{
-    position: absolute;
     visibility: hidden;
 }
 
