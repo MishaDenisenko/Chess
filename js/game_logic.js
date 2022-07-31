@@ -1,5 +1,7 @@
 import Desk from "./classes/desk.js";
 import {Bishop, King, Knight, Pawn, Queen, Rook} from "./classes/piece.js";
+import {shahOutline} from "./game_view.js";
+
 
 export const desk = new Desk()
 export const whitePieces = []
@@ -135,12 +137,14 @@ blackPieces.push(
     }),
 )
 
+const [whiteKing, blackKing] = [whitePieces[15], blackPieces[15]]
+
 export const selectPiece = (activeColor, clickedPosition) => {
     let position = desk.getDenormalizePosition(clickedPosition)
     switch (activeColor) {
         case 'white':
             for (let piece of whitePieces) {
-                if (piece.position === position) {
+                if (piece.isAlive && piece.position === position) {
                     piece.select(whitePieces, blackPieces)
                     return piece
                 }
@@ -148,7 +152,7 @@ export const selectPiece = (activeColor, clickedPosition) => {
             break
         case 'black':
             for (let piece of blackPieces) {
-                if (piece.position === position) {
+                if (piece.isAlive && piece.position === position) {
                     piece.select(blackPieces, whitePieces)
                     return piece
                 }
@@ -166,5 +170,20 @@ export const changeSide = () => {
         side.white = true
         side.black = false
     }
+    let isShah = checkShah()
+
+    // console.log(isShah, side.white ? 'w' : 'b')
+    if (isShah) shahOutline(side.white ? whiteKing : blackKing)
     console.log('\n\n-------------------------------------\n\n')
 }
+
+const checkShah = () => {
+    // console.log(whiteKing, blackKing)
+    if (side.white){
+        desk.setCellsDanger(whitePieces, blackPieces)
+        return whiteKing.isShah()
+    }
+    desk.setCellsDanger(blackPieces, whitePieces)
+    return blackKing.isShah()
+}
+

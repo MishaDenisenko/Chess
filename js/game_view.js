@@ -4,6 +4,18 @@ const fieldRows = document.querySelectorAll('.field-row')
 let gameField = []
 let selectedPiece, selectedCell
 
+const getCellPosition = (position, arrangement=true) => {
+    let normalizePosition
+
+    if (arrangement) {
+        normalizePosition = position.normalizePosition
+        console.log(normalizePosition)
+    }
+    else normalizePosition = desk.getNormalizePosition(position)
+
+    return gameField[normalizePosition[0]][normalizePosition[1]]
+}
+
 for (let i = fieldRows.length - 1; i >= 0; i--) {
     let cellsRow = []
     for (let cell of fieldRows[i].children) {
@@ -13,16 +25,14 @@ for (let i = fieldRows.length - 1; i >= 0; i--) {
 }
 
 for (let i = 0; i < whitePieces.length; i++) {
-    let normalizePositionW = whitePieces[i].normalizePosition
-    let cell = gameField[normalizePositionW[0]][normalizePositionW[1]]
+    let cell = getCellPosition(whitePieces[i])
     cell.insertAdjacentHTML('beforeend',
         `<img src=${whitePieces[i].image} alt="" class="chess-icon ${whitePieces[i].color}">`
     )
 }
 
 for (let i = 0; i < blackPieces.length; i++) {
-    let normalizePositionB = blackPieces[i].normalizePosition
-    let cell = gameField[normalizePositionB[0]][normalizePositionB[1]]
+    let cell = getCellPosition(blackPieces[i])
     cell.insertAdjacentHTML('beforeend',
         `<img src=${blackPieces[i].image} alt="" class="chess-icon ${blackPieces[i].color}">`
     )
@@ -53,6 +63,8 @@ function clickOnCell(position){
         else {
             if (side.white){
                 if (this.children[0].classList.contains('chess-icon' && 'white')){
+                    outlineCell(this, '#48e8ed')
+
                     selectedCell = this
                     selectedPiece = selectPiece('white', position)
                     let potentialMoves = selectedPiece.getPotentialMoves(whitePieces, blackPieces)
@@ -66,6 +78,8 @@ function clickOnCell(position){
             }
             else if (side.black) {
                 if (this.children[0].classList.contains('chess-icon' && 'black')){
+                    outlineCell(this, '#48e8ed')
+
                     selectedCell = this
                     selectedPiece = selectPiece('black', position)
                     let potentialMoves = selectedPiece.getPotentialMoves(blackPieces, whitePieces)
@@ -86,8 +100,8 @@ const showMoves = (positions) => {
 
     // console.log(positions)
     for (let i = 0; i < positions.length; i++) {
-        let cellPos = desk.getNormalizePosition(positions[i].position)
-        let cell = gameField[cellPos[0]][cellPos[1]]
+
+        let cell = getCellPosition(positions[i].position, false)
         if (positions[i].cell === 'empty'){
             cell.insertAdjacentHTML('beforeend',
                 `<img src="../img/chess/move/blue-dot.png" alt="" class="pos-icon">`
@@ -95,11 +109,10 @@ const showMoves = (positions) => {
         }
         else if (positions[i].cell === 'other'){
             cell.insertAdjacentHTML('beforeend',
-                `<img src="../img/chess/move/blue-dot.png" alt="" class="pos-icon other">`
+                `<img src="../img/chess/move/red-dot.png" alt="" class="pos-icon">`
             )
         }
     }
-
 }
 
 const movePiece = (cell, position, otherPieces, eat = false) => {
@@ -114,6 +127,7 @@ const movePiece = (cell, position, otherPieces, eat = false) => {
         cell.appendChild(selectedPieceIcon)
     }
     else cell.appendChild(selectedPieceIcon)
+    deOutline(true)
     changeSide()
     selectedPiece = null
     selectedCell = null
@@ -125,4 +139,24 @@ const removeOldMoves = () => {
         move.parentNode.removeChild(move.parentNode.lastChild)
     }
 }
+
+const outlineCell = (cell, color) => {
+    deOutline()
+    if (cell.style.borderColor !== 'rgb(216, 53, 53)') cell.style.border = `2px ${color} solid`
+}
+
+const deOutline = (newMove) => {
+    for (let row of gameField) {
+        for (let cell of row) {
+            // console.log(cell.style.borderColor)
+            if (cell.style.borderColor !== 'rgb(216, 53, 53)' || newMove) cell.style.border = 'none'
+        }
+    }
+}
+
+export const shahOutline = (king) => {
+    let cell = getCellPosition(king.position, false)
+    outlineCell(cell, '#d83535')
+}
+
 

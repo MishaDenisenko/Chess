@@ -41,7 +41,9 @@ class Piece {
         if (this._firstMove) this._firstMove = false
         for (let piece of otherPieces) {
             if (piece.position === position) {
-                this.eat(piece)
+                let eatenPiece = this.eat(piece)
+
+                console.log(eatenPiece)
                 break
             }
         }
@@ -68,8 +70,10 @@ class Piece {
                 if (!knight) break
             }
             else {
-                if (checkShah && this.checkShah(direction[i], selfKing, selfPieces, otherPieces)) {
-                    console.log(true)
+                let shah
+                if (checkShah && (shah = this.checkShah(direction[i], selfKing, selfPieces, otherPieces))) {
+                    console.log(shah)
+
                     continue
                 }
                 if (this.checkOther(direction[i], otherPieces)){
@@ -77,7 +81,7 @@ class Piece {
                     potentialMoves.push({position: direction[i], cell: 'other', threatens: true})
                     if (!knight) break
                 }
-                potentialMoves.push({position: direction[i], cell: 'empty', threatens: true})
+                else potentialMoves.push({position: direction[i], cell: 'empty', threatens: true})
             }
         }
     }
@@ -87,7 +91,7 @@ class Piece {
         let eatenPiece
         this.position = newPosition
         for (let otherPiece of otherPieces) {
-            if (otherPiece.position === this.position) {
+            if (otherPiece.isAlive && otherPiece.position === this.position) {
                 eatenPiece = this.eat(otherPiece)
                 break
             }
@@ -97,7 +101,7 @@ class Piece {
         this.position = oldPosition
         if (eatenPiece) eatenPiece.reborn()
 
-        console.log(isShah, newPosition)
+        // console.log(isShah, newPosition)
         return isShah
     }
 
@@ -130,28 +134,36 @@ export class Pawn extends Piece{
             for (let i = 0; i < 2; i++) {
                 if (vertical[i]){
                     if (this.checkSelf(vertical[i], selfPieces) || this.checkOther(vertical[i], otherPieces)) break
-                    else potentialMoves.push({position: vertical[i], cell: 'empty', threatens: false})
+                    if (this.checkShah(vertical[i], selfPieces[selfPieces.length - 1], selfPieces, otherPieces)) break
+                    potentialMoves.push({position: vertical[i], cell: 'empty', threatens: false})
                 }
                 else break
             }
         }
         else {
             if (vertical[0] && !this.checkSelf(vertical[0], selfPieces) && !this.checkOther(vertical[0], otherPieces)) {
-                potentialMoves.push({position: vertical[0], cell: 'empty', threatens: false})
+                if (!this.checkShah(vertical[0], selfPieces[selfPieces.length - 1], selfPieces, otherPieces))
+                    potentialMoves.push({position: vertical[0], cell: 'empty', threatens: false})
             }
         }
 
         if (leftTopDiagonal[0]){
             this._menacingMoves.push({position: leftTopDiagonal[0], cell: 'empty', threatens: true})
 
-            if (this.checkOther(leftTopDiagonal[0], otherPieces)) potentialMoves.push({position: leftTopDiagonal[0], cell: 'other', threatens: true})
-            else if (this.checkSelf(leftTopDiagonal[0], selfPieces)) potentialMoves.push({position: leftTopDiagonal[0], cell: 'self', threatens: true})
+            if (this.checkOther(leftTopDiagonal[0], otherPieces)) {
+                if (!this.checkShah(leftTopDiagonal[0], selfPieces[selfPieces.length - 1], selfPieces, otherPieces))
+                    potentialMoves.push({position: leftTopDiagonal[0], cell: 'other', threatens: true})
+            }
+            // else if (this.checkSelf(leftTopDiagonal[0], selfPieces)) potentialMoves.push({position: leftTopDiagonal[0], cell: 'self', threatens: true})
         }
         if (rightTopDiagonal[0]){
             this._menacingMoves.push({position: rightTopDiagonal[0], cell: 'empty', threatens: true})
 
-            if (this.checkOther(rightTopDiagonal[0], otherPieces)) potentialMoves.push({position: rightTopDiagonal[0], cell: 'other', threatens: true})
-            else if (rightTopDiagonal[0] && this.checkSelf(rightTopDiagonal[0], selfPieces)) potentialMoves.push({position: rightTopDiagonal[0], cell: 'self', threatens: true})
+            if (this.checkOther(rightTopDiagonal[0], otherPieces)){
+                if (!this.checkShah(rightTopDiagonal[0], selfPieces[selfPieces.length - 1], selfPieces, otherPieces))
+                    potentialMoves.push({position: rightTopDiagonal[0], cell: 'other', threatens: true})
+            }
+            // else if (rightTopDiagonal[0] && this.checkSelf(rightTopDiagonal[0], selfPieces)) potentialMoves.push({position: rightTopDiagonal[0], cell: 'self', threatens: true})
         }
 
         return potentialMoves
@@ -204,7 +216,11 @@ export class Knight extends Piece{
             // }
             // else if (!this.checkSelf(direction[i], selfPieces)) potentialMoves.push({position: direction[i], cell: 'empty', threatens: true})
 
-
+        // for (let potentialMove of potentialMoves) {
+        //     for (let potentialMoveKey in potentialMove) {
+        //         console.log(potentialMoveKey, potentialMove[potentialMoveKey])
+        //     }
+        // }
         return potentialMoves
     }
 }
@@ -229,11 +245,6 @@ export class Bishop extends Piece{
 
         for (let direction of directions) {
             this.checkCell(potentialMoves, direction, selfPieces, otherPieces, checkShah)
-        }
-
-        for (let potentialMove of potentialMoves) {
-            console.log(potentialMove.position + '++++++')
-
         }
 
         return potentialMoves
@@ -266,6 +277,10 @@ export class Queen extends Piece{
         for (let direction of directions) {
             this.checkCell(potentialMoves, direction, selfPieces, otherPieces, checkShah)
         }
+
+        // for (let potentialMove of potentialMoves) {
+        //     console.log(potentialMove.position + '++++++')
+        // }
 
         return potentialMoves
     }
@@ -302,7 +317,7 @@ export class King extends Piece{
 
     isShah = () => {
         let dangerCells = this.desk.dangerCells
-        console.log(dangerCells, this.position)
+        // console.log(dangerCells, this.position)
         for (let cell of dangerCells) {
             if (this.position === cell) return true
         }
