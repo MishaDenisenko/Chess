@@ -1,6 +1,7 @@
-import {whitePieces, blackPieces, desk, side, selectPiece, changeSide} from "./game_logic.js";
+import {whitePieces, blackPieces, whiteKing, blackKing, desk, side, selectPiece, changeSide} from "./game_logic.js";
 
 const fieldRows = document.querySelectorAll('.field-row')
+const [castlingBtn] = [document.querySelector('#castling')]
 let gameField = []
 let selectedPiece, selectedCell
 
@@ -9,7 +10,7 @@ const getCellPosition = (position, arrangement=true) => {
 
     if (arrangement) {
         normalizePosition = position.normalizePosition
-        console.log(normalizePosition)
+        // console.log(normalizePosition)
     }
     else normalizePosition = desk.getNormalizePosition(position)
 
@@ -43,6 +44,13 @@ for (let i = 0; i < gameField.length; i++) {
         let cell = gameField[i][j]
         cell.addEventListener('click', () => clickOnCell.bind(cell)([i, j]))
     }
+}
+
+castlingBtn.onclick = () =>{
+    console.log(desk.getCastlingMove(whiteKing, whitePieces[8], whitePieces[8].getPotentialMoves(whitePieces, blackPieces)))
+    desk.getCastlingMove(whiteKing, whitePieces[9])
+    desk.getCastlingMove(blackKing, blackPieces[8])
+    desk.getCastlingMove(blackKing, blackPieces[9])
 }
 
 // let dangerCells = desk.setCellsDanger(whitePieces, blackPieces)

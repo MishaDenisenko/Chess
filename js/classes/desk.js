@@ -271,6 +271,28 @@ class Desk {
         return knightMove
     }
 
+    getCastlingMove = (king, rook, rookLine) => {
+        // console.log(this.getNormalizePosition(king.position), this.getNormalizePosition(rook.position))
+        console.log(rookLine)
+        if (!king.isShah() && king._firstMove && rook._firstMove) {
+            let [kingPos, rookPos] = [this.getNormalizePosition(king.position)[1], this.getNormalizePosition(rook.position)[1]]
+            let hor = king.position[1] - 1
+            for (let cell of rookLine) {
+                if (cell.position === king.position) {
+                    return kingPos > rookPos
+                        ? [
+                            this.getDenormalizePosition([hor, kingPos-2]),
+                            this.getDenormalizePosition([hor, rookPos+3])
+                        ]
+                        : [
+                            this.getDenormalizePosition([hor, kingPos+2]),
+                            this.getDenormalizePosition([hor, rookPos-2])
+                        ]
+                }
+            }
+        }
+    }
+
     get dangerCells() {
         return this._dangerCells;
     }

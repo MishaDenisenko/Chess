@@ -55,10 +55,6 @@ class Piece {
         return other
     }
 
-    reborn = () => {
-        this.isAlive = true
-    }
-
     checkCell = (potentialMoves, direction, selfPieces, otherPieces, checkShah = false, knight=false) => {
         if (direction.length === 0) return
 
@@ -106,8 +102,12 @@ class Piece {
     }
 
     destroy = () => {
-        this.isAlive = false
+        if (this.isAlive) this.isAlive = false
         // this.position = -1
+    }
+
+    reborn = () => {
+        if (!this.isAlive) this.isAlive = true
     }
 }
 

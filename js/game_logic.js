@@ -137,7 +137,7 @@ blackPieces.push(
     }),
 )
 
-const [whiteKing, blackKing] = [whitePieces[15], blackPieces[15]]
+export const [whiteKing, blackKing] = [whitePieces[15], blackPieces[15]]
 
 export const selectPiece = (activeColor, clickedPosition) => {
     let position = desk.getDenormalizePosition(clickedPosition)
